@@ -15,94 +15,6 @@ nltk.download('wordnet')
 # nltk.download('universal_tagset')
 # nltk.download('averaged_perceptron_tagger_ru')
 
-# init pdf file
-# file = open("Documents/example.pdf", 'rb')
-
-# read from file
-# reader = PdfReader(file)
-# print(len(reader.pages))
-# page = reader.pages[0]
-# text = page.extract_text() # get text from file
-
-
-
-# get rid of necessary words
-# stop_words = set(stopwords.words("russian"))
-# filtered_list = []
-# for word in word_tokenize(text):
-#     if word.casefold() not in stop_words:
-#         filtered_list.append(word)
-# print(filtered_list)
-
-# steamer = PorterStemmer()
-
-
-# get rid of punctuation symbols
-# filtered = list(filter(lambda x: x != ',' and x != '.' and x != ', ', filtered_list))
-# filtered = list(filtered)
-# print(f)
-
-
-# morph = pymorphy2.MorphAnalyzer()
-# words_dict = {}
-# normal_form_dict =[]
-# word_info_list = []
-#
-# rs = RussianStemmer()
-# word_base_list = []
-
-# k = ['мама','Папа','арбуз','Яхта','олень']
-# k = sorted([x.lower() for x in k])
-# print(k)
-
-# b = []
-# for word in filtered:
-#     b.append(word.lower())
-#
-# filtered = sorted(b)
-# print(filtered)
-
-
-#
-# for token in filtered:
-#     if 'ЗПР' not in morph.parse(token)[0].tag.cyr_repr and 'НЕИЗВ' not in morph.parse(token)[0].tag.cyr_repr and 'Н' not in morph.parse(token)[0].tag.cyr_repr and 'ЧАСТ' not in morph.parse(token)[0].tag.cyr_repr and '-' not in morph.parse(token)[0].word:
-#         # print(morph.parse(token)[0].word ,morph.parse(token)[0].tag.cyr_repr) # get word and it's morph discription
-#         # print(morph.parse(token))
-#         words_dict[morph.parse(token)[0].word] = morph.parse(token)[0].tag.cyr_repr.replace(',',' ').split()
-#         # nf_list.append(morph.parse(token)[0].inflect({'sing', 'nomn'}))
-#         # print(morph.parse(token)[0].normal_form)
-#         normal_form_dict.append(morph.parse(token)[0].normal_form)
-#         # add to the info list a list of each word info
-#         word_info_list.append(morph.parse(token)[0].tag.cyr_repr.replace(',',' ').split())
-#         # get base of the word
-#         word_base_list.append(rs.stem(morph.parse(token)[0].word))
-#
-#
-#
-# # отсортированный словарь слов с доп инфой
-# print((words_dict.items()))
-# # отсортированный список начальных форм слова
-# print((normal_form_dict))
-# print(word_info_list)
-# print(word_base_list)
-
-
-# for x in sorted(normal_form_dict):
-#     try:
-#         for i in morph.parse(x)[0].lexeme: # склонение слов по падежам
-#             print('-', i.word, '-', i.tag.cyr_repr)
-#     except:
-#         print(morph.parse(x)[0].word)
-    # print('3 - ', morph.parse(x)[0].make_agree_with_number(3).word)
-    # print('4 - ', morph.parse(x)[0].make_agree_with_number(5).word)
-
-
-
-
-
-
-
-
 
 
 class Parser:
@@ -135,11 +47,19 @@ class Parser:
         function to make all nessesary text's manipulations
         :return:
         """
+        # формируется список всех слов
         self.filter_text()
-        self.get_word_ending_list()
+        # все списки и словари с инфой по словам заполняются
         self.get_word_info()
+        # окончания слов?
+        self.get_word_ending_list()
+
 
     def filter_text(self):
+        """
+        Формирует отсортированный по алфавиту список слов
+        :return:
+        """
         # get rid of necessary words
         stop_words = set(stopwords.words("russian"))
         for word in word_tokenize(self.text):
@@ -153,7 +73,10 @@ class Parser:
         # lowcase all the words and sort them
         self.filtered_list = sorted([x.lower() for x in self.filtered_list])
 
+
+    # нужен ли этот метод вообще??
     def get_word_ending_list(self):
+        print(self.word_list)
         for word in self.words_dict:
             # print('# ',self.stemmer.stem(word))
             buf_list = []
@@ -165,8 +88,16 @@ class Parser:
                     buf_list.append(i.word.replace(self.stemmer.stem(word),''))
             self.word_ending_dict[self.stemmer.stem(self.morph.parse(word)[0].word)] = buf_list
 
+
+
     def get_inflect_on_word_case(self, word, word_case, word_number):
-        # print(self.morph.parse(token))
+        """
+        Формирование словоформ по заданным числу и падежу
+        :param word:
+        :param word_case:
+        :param word_number:
+        :return:
+        """
         try:
             if word_case == 'И.п.' and word_number == 'ед.ч.':
                 # for token in self.word_list:
@@ -238,12 +169,17 @@ class Parser:
 
 
 if __name__ == '__main__':
-    parser = Parser("Documents/example1.pdf")
+    parser = Parser("Documents/example.pdf")
+    # составляет все необходимые для дальнейшей работы словари и списки
     parser.prepare_text()
+    
+    # просто выводит все списки и словари в консоль
+    parser.show_info()
 
-    # parser.show_info()
-    # parser.get_lexeme_with_info()
-    # parser.get_inflect_on_word_case('маму', 'Р.п.', 'мн.ч.')
+
+    # вот здесь вот меняются слова словечки по роду и числу->
+    parser.get_inflect_on_word_case('жаба', 'Р.п.', 'ед.ч.')
+    parser.get_inflect_on_word_case('человек', 'Р.п.', 'мн.ч.')
 
 
 
