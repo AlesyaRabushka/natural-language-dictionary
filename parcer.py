@@ -134,28 +134,24 @@ class Parser:
 
     def get_word_info(self):
         for token in self.filtered_list:
-            if 'ЗПР' not in self.morph.parse(token)[0].tag.cyr_repr and 'НЕИЗВ' not in self.morph.parse(token)[
-                0].tag.cyr_repr and 'ЧИСЛО' not in self.morph.parse(token)[0].tag.cyr_repr and 'Н' not in \
-                    self.morph.parse(token)[0].tag.cyr_repr and 'ЧАСТ' not in self.morph.parse(token)[
-                0].tag.cyr_repr and '-' not in self.morph.parse(token)[0].word:
-                # print(morph.parse(token)[0].word ,morph.parse(token)[0].tag.cyr_repr) # get word and it's morph discription
-                # print(morph.parse(token))
-                self.words_dict[self.morph.parse(token)[0].word] = self.morph.parse(token)[0].tag.cyr_repr.replace(',',
-                                                                                                                   ' ').split()
-                self.word_list.append(self.morph.parse(token)[0].word)
-                # get word's NORMAL FORM
-                self.normal_form_dict[self.morph.parse(token)[0].word] = self.morph.parse(token)[0].normal_form
-                # add to the info list a list of each word info
-                self.word_info_list.append(self.morph.parse(token)[0].tag.cyr_repr.replace(',', ' ').split())
-                # get base of the word
-                self.word_base_list.append(self.stemmer.stem(self.morph.parse(token)[0].word))
+            if 'ЗПР' not in self.morph.parse(token)[0].tag.cyr_repr and 'НЕИЗВ' not in self.morph.parse(token)[0].tag.cyr_repr and 'ЧИСЛО' not in self.morph.parse(token)[0].tag.cyr_repr and 'Н' not in self.morph.parse(token)[0].tag.cyr_repr and 'ЧАСТ' not in self.morph.parse(token)[0].tag.cyr_repr and '-' not in self.morph.parse(token)[0].word:
+                # теперь слова в list не повторяются! => 182 слова
+                if self.morph.parse(token)[0].word not in self.words_dict.keys():
+                    self.words_dict[self.morph.parse(token)[0].word] = self.morph.parse(token)[0].tag.cyr_repr.replace(',',' ').split()
+                    self.word_list.append(self.morph.parse(token)[0].word)
+                    # get word's NORMAL FORM
+                    self.normal_form_dict[self.morph.parse(token)[0].word] = self.morph.parse(token)[0].normal_form
+                    # add to the info list a list of each word info
+                    self.word_info_list.append(self.morph.parse(token)[0].tag.cyr_repr.replace(',', ' ').split())
+                    # get base of the word
+                    self.word_base_list.append(self.stemmer.stem(self.morph.parse(token)[0].word))
 
     def show_info(self):
-        print('dict ', self.words_dict)
-        print('normal form ', self.normal_form_dict)
-        print('info ', self.word_info_list)
-        print('base ', self.word_base_list)
-        print('endings', self.word_ending_dict)
+        print(len(self.words_dict), self.words_dict)
+        print(len(self.normal_form_dict), self.normal_form_dict)
+        print(len(self.word_info_list), self.word_info_list)
+        print(len(self.word_base_list), self.word_base_list)
+        print(len(self.word_ending_dict), self.word_ending_dict)
 
     def get_lexeme_with_info(self):
         for word_index in range(len(self.words_dict)):
