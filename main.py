@@ -82,7 +82,7 @@ import random
 #     print(value)
 
 # file
-# file = open('file1.txt', r)
+# file = open('file1.txt', 'r')
 # for line in file.readlines():
 #     print(line)
 # file.close()
@@ -155,3 +155,13 @@ import random
 #     element node
 # }
 # tree *tree = NULL
+
+
+
+
+
+try:
+    raise NameError('HiThere')
+except NameError:
+    print('Исключение не вызвано!')
+    raise
