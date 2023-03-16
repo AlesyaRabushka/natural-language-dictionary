@@ -160,8 +160,34 @@ import random
 
 
 
-try:
-    raise NameError('HiThere')
-except NameError:
-    print('Исключение не вызвано!')
-    raise
+# try:
+#     raise NameError('HiThere')
+# except NameError:
+#     print('Исключение не вызвано!')
+#     raise
+
+
+################################################################################################
+import spacy
+from spacy import displacy
+nlp = spacy.load('ru_core_news_sm')
+#text = ' Созависимость всегда имеет двусторонний характер и наблюдается у обоих партнеров, отличия лишь в поведенческих проявлениях: один партнер доминирующий, другой – покорный.'
+text = 'мы направились к остановке автобуса - она была недалеко'
+doc = nlp(text)
+for token in doc:
+    if token.dep_ == 'nsubj':
+        print(token.text, token.pos_, 'подлежащее')
+    elif token.dep_ == 'ROOT' or token.dep_ == 'conj':
+        print(token.text, token.pos_, 'глагол')
+    elif token.dep_ == 'advmod':
+        print(token.text, token.pos_, 'обстоятельство')
+    elif token.dep_ == 'obj' or token.dep_ == 'nummod' or token.dep_ == 'obl':
+        print(token.text, token.pos_, 'дополнение')
+    elif token.dep_ == 'nmod':
+        print(token.text, token.pos_, 'определение')
+    elif token.dep_ == 'cc':
+        print(token.text, token.pos_, 'союз')
+    elif token.dep_ == 'case':
+        print(token.text, token.pos_, 'предлог')
+    else:
+        print(token.text, token.pos_, token.dep_)

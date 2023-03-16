@@ -40,6 +40,11 @@ class Parser:
         self.word_base_list = []
         self.word_ending_dict = {}
 
+        # -------- №2 ----------
+        self.subordination_trees = []
+
+
+
     def prepare_text(self):
         """
         function to make all nessesary text's manipulations
@@ -159,14 +164,65 @@ class Parser:
                   self.word_ending_dict[self.word_base_list[word_index]])
 
 
+
+    #------------------------------------------------№2----------------------------------------------
+    import spacy
+    from spacy import displacy
+
+    def syntacic_analysis_subordination_trees(self):
+        """
+        Синтаксический разбор с помощью деревьев разбора
+        :return:
+        """
+        nlp = spacy.load('ru_core_news_sm')
+        doc = nlp(self.text)
+
+        # попробовала подобрать эти наборы букв под что-то более менее подходящее
+        for token in doc:
+            if token.dep_ == 'nsubj' or token.dep_ == 'nsubj:pass' or token.dep_ == 'csubj' or token.dep_ == 'xcomp':
+                print(token.text, token.pos_, 'подлежащее')
+                self.subordination_trees.append('подлежащее')
+            elif token.dep_ == 'ROOT' or token.dep_ == 'conj' or token.dep_ == 'expl' or token.dep_ == 'parataxis' or token.dep_ == 'aux' or token.dep_ == 'ccomp':
+                print(token.text, token.pos_, 'глагол')
+                self.subordination_trees.append('глагол')
+            elif token.dep_ == 'advmod' or token.dep_ == 'discourse' or token.dep_ == 'advcl':
+                print(token.text, token.pos_, 'обстоятельство')
+                self.subordination_trees.append('обстоятельство')
+            elif token.dep_ == 'obj' or token.dep_ == 'nummod' or token.dep_ == 'obl' or token.dep_ == 'iobj' :
+                print(token.text, token.pos_, 'дополнение')
+                self.subordination_trees.append('дополнение')
+            elif token.dep_ == 'nmod' or token.dep_ == 'amod'or token.dep_ == 'det' or token.dep_ == 'acl':
+                print(token.text, token.pos_, 'определение')
+                self.subordination_trees.append('определение')
+            elif token.dep_ == 'cc' or token.dep_ == 'fixed' or token.dep_ == 'mark':
+                print(token.text, token.pos_, 'союз')
+                self.subordination_trees.append('союз')
+            elif token.dep_ == 'case':
+                print(token.text, token.pos_, 'предлог')
+                self.subordination_trees.append('предлог')
+            else:
+                print(token.text, token.pos_, token.dep_)
+                self.subordination_trees.append(token.dep_)
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     parser = Parser("Documents/example.pdf")
     # составляет все необходимые для дальнейшей работы словари и списки
     parser.prepare_text()
 
     # просто выводит все списки и словари в консоль
-    parser.show_info()
+    # parser.show_info()
 
     # вот здесь вот меняются слова словечки по роду и числу->
-    parser.get_inflect_on_word_case('жаба', 'Р.п.', 'ед.ч.')
-    parser.get_inflect_on_word_case('человек', 'Р.п.', 'мн.ч.')
+    # parser.get_inflect_on_word_case('жаба', 'Р.п.', 'ед.ч.')
+    # parser.get_inflect_on_word_case('человек', 'Р.п.', 'мн.ч.')
+    parser.syntacic_analysis_subordination_trees()
