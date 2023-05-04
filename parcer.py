@@ -8,6 +8,14 @@ import nltk
 import spacy
 import pymorphy2
 
+
+
+from wiki_ru_wordnet import WikiWordnet
+wikiwordnet = WikiWordnet()
+
+
+from pymystem3 import Mystem
+
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
@@ -46,6 +54,12 @@ class Parser:
 
 
 
+        # -------- #3 --------=
+        self.normal_form_lists = []
+        self.semantic_analysis_list_of_dicts = []
+
+
+
     def prepare_text(self):
         """
         function to make all nessesary text's manipulations
@@ -64,9 +78,9 @@ class Parser:
         :return:
         """
         # get rid of necessary words
-        stop_words = set(stopwords.words("russian"))
+        self.stop_words = set(stopwords.words("russian"))
         for word in word_tokenize(self.text):
-            if word.casefold() not in stop_words:
+            if word.casefold() not in self.stop_words:
                 self.filtered_list.append(word)
 
         # get rid of punctuation symbols
@@ -259,11 +273,57 @@ class Parser:
             print(analysis_sentence)
 
 
+    # ------------------------------------------ №3 --------------
 
 
+    # w = gensim.models.Word2Vec.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
+    def preprocess(self, text, stop_words, punctuation_marks, morph):
+        print('---',text)
+        tokens = word_tokenize(text)
+        preprocessed_text = []
+        for token in tokens:
+            if token.casefold() not in self.stop_words:
+                lemma = morph.parse(token)[0].normal_form
+                preprocessed_text.append(lemma)
+            # if token not in punctuation_marks:
+            #     lemma = morph.parse(token)[0].normal_form
+            #     if lemma not in self.stop_words:
+            #         preprocessed_text.append(lemma)
+        return preprocessed_text
 
 
+    def semantic_analysis(self):
+        for word in self.word_base_list:
+            synsets = wikiwordnet.get_synsets(word)
+            if len(synsets) != 0:
+                dict = {}
+                synonyms_list = []
+                definition_dict = {}
+                hypernyms_list = []
+                hyponyms_list = []
 
+                # синоним, определение
+                synset = synsets[0]
+                for syn in synset.get_words():
+                    synonyms_list.append(syn.lemma())
+                    definition_dict[syn.lemma()] = syn.definition()
+                # гиперонимы
+                for hypernym in wikiwordnet.get_hypernyms(synset):
+                    for w in hypernym.get_words():
+                        hypernyms_list.append(w.lemma)
+                # гипонимы
+                for hyponyms in wikiwordnet.get_hyponyms(synset):
+                    for w in hyponyms.get_words():
+                        hyponyms_list.append(w.lemma())
+
+                # fill the result list
+                dict['word'] = word
+                dict['synonyms'] = synonyms_list
+                dict['definitions'] = definition_dict
+                dict['hypernyms'] = hypernyms_list
+                dict['hyponyms'] = hyponyms_list
+                self.semantic_analysis_list_of_dicts.append(dict)
+                print(dict)
 
 
 
@@ -281,4 +341,9 @@ if __name__ == '__main__':
 
 
     # parser.syntacic_analysis_subordination_trees()
-    parser.syntacic_analysis_component_systems()
+    # parser.syntacic_analysis_component_systems()
+
+
+
+    # складывает все данные о синонимах и т.д. в список semantic_analysis_list_of_dicts
+    parser.semantic_analysis()
